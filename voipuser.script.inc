@@ -13,17 +13,30 @@
  * @param bool $create
  *   (optional) If number is not known create a new user. Default FALSE.
  */
-function voipuser_autologin_script($number, $create = FALSE) {
+function _voipuser_autologin_script($number, $create = FALSE) {
+  $script = new VoipScript('voipuser_autologin');
   $uid = VoipUserNumber::getUidFromNumber($number);
+
   if ($uid) {
-    // Add to session.
-    return $uid;
+    global $user;
+    watchdog('voipuser', 'Voip call associated with user %name.', array('%name' => $user->name));
+    $user = user_load($uid);
   }
   elseif ($create) {
-    // Create new user.
-    return $uid;
+    $uid = voipuser_user_create($number);
+    global $user;
+    $user = user_load($uid);
   }
-
-  return FALSE;
+  return $script;
 }
 
+/**
+ * Log out user.
+ */
+function _voipuser_logout_script() {
+  $script = new VoipScript('voipuser_logout');
+  global $user;
+  watchdog('user', 'Voip call disassociated with user %name.', array('%name' => $user->name));
+  $user = user_load(0);
+  return $script;
+}

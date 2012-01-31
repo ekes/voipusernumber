@@ -231,6 +231,35 @@ function voipuser_user_create($number, $options = array()) {
 }
 
 /**
+ * Implements hook_voipscript_get_script_names().
+ */
+function voipuser_voipscript_get_script_names() {
+  return array(
+    'voipuser_autologin',
+    'voipuser_logout',
+  );
+}
+
+/**
+ * Implements hook_voipscript_load_script().
+ */
+function voipuser_voipscript_load_script($script_name, $params = NULL) {
+  switch ($script_name) {
+    case 'voipuser_autologin':
+      module_load_include('inc', 'voipuser', 'voipuser.script');
+      if (isset($params['create'])) {
+        return _voipuser_autologin_script($params['number'], $params['create']);
+      }
+      else {
+        return _voipuser_autologin_script($params['number']);
+      }
+    case 'voipuser_logout':
+      module_load_include('inc', 'voipuser', 'voipuser.script');
+      return _voipuser_logout_script();
+  }
+}
+
+/**
  * Implements hook_get_voip_numbers().
  */
 function voipuser_get_voip_numbers($id, $type) {
