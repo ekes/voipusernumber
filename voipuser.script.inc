@@ -15,8 +15,10 @@
  */
 function _voipuser_autologin_script($number, $create = FALSE) {
   $script = new VoipScript('voipuser_autologin');
-  $uid = VoipUserNumber::getUidFromNumber($number);
+  // autoload _should_ negate the need for this
+  module_load_include('inc', 'voipuser', 'voipuser.voipusernumber');
 
+  $uid = VoipUserNumber::getUidFromNumber($number);
   if ($uid) {
     global $user;
     watchdog('voipuser', 'Voip call associated with user %name.', array('%name' => $user->name));

@@ -246,6 +246,7 @@ function voipuser_voipscript_get_script_names() {
 function voipuser_voipscript_load_script($script_name, $params = NULL) {
   switch ($script_name) {
     case 'voipuser_autologin':
+    watchdog('DEBUG', 'voipuser_autologin');
       module_load_include('inc', 'voipuser', 'voipuser.script');
       if (isset($params['create'])) {
         return _voipuser_autologin_script($params['number'], $params['create']);
