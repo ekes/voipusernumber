@@ -60,6 +60,63 @@ class VoipUserNumber extends VoipNumber {
    */
   public static function getUidFromNumber($number) {
     return db_result(db_query("SELECT uid FROM {voipuser_numbers} WHERE phone = '%s'", $number));
+   }
+
+  /**
+   * Return default VoIP User number associated with a user.
+   *
+   * Overrides VoipNumber::getDefaultNumberFromUid(). This only returns the
+   * first number from an array. We return the user chosen default number.
+   *
+   * @param int $uid
+   *   The User ID.
+   *
+   * @return object
+   *   VoipUserNumber object. The Default number if it exists. The first number
+   *   if not. FALSE if there is are no user numbers associated with the UID.
+   */
+  public static function getDefaultNumberFromUid($uid) {
+    $numbers = self::getNumbersFromUid($uid);
+    if (! empty($numbers)) {
+      if (! empty($numbers['default'])) {
+        return $numbers['default'];
+      }
+      else {
+        return current($numbers);
+      }
+    }
+    else {
+      return FALSE;
+    }
+  }
+
+  /**
+   * Return array of VoIP User numbers associated with a user.
+   *
+   * If you require all VoIP numbers use
+   * VoipNumber::getNumbersFromUid().
+   *
+   * @param int $uid
+   *   The User ID.
+   *
+   * @return object
+   *   Keyed array of VoipUserNumber Objects. Keyed by phone number, with
+   *   a duplicate 'default' keyed number. An empty array is returned if there
+   *   are no numbers.
+   */
+  public static function getNumbersFromUid($uid) {
+    $numbers = array();
+
+    $fields = drupal_schema_fields_sql('voipuser_numbers');
+    $result = db_query('SELECT ' . implode(',', $fields) . ' FROM {voipuser_numbers} WHERE uid = %d', $uid);
+    while (db_fetch_object($result)) {
+      $numbers[$result->phone] = new VoipUserNumber($result->number, $result->uid, $result->number_prefix, $result->status);
+      if ($result->status & VOIPUSER_NUMBER_DEFAULT) {
+        $numbers['default'] = $numbers[$result->phone];
+      }
+    }
+
+    return $numbers;
   }
 
   /**

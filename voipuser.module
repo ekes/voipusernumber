@@ -98,15 +98,7 @@ function voipuser_user($op, &$edit, &$account, $category = NULL) {
  */
 function voipuser_user_load(&$account, $category) {
   $account->voipuser = array();
-
-  $fields = drupal_schema_fields_sql('voipuser_numbers');
-  $result = db_query('SELECT ' . implode(',', $fields) . ' FROM {voipuser_numbers} WHERE uid = %d', $account->uid);
-  while (db_fetch_object($result)) {
-    $account->voipuser[$result->phone] = new VoipUserNumber($result->number, $result->uid, $result->number_prefix, $result->status);
-    if ($result->status & VOIPUSER_NUMBER_DEFAULT) {
-      $account->voipuser['default'] = new VoipUserNumber($result->number, $result->uid, $result->number_prefix, $result->status);
-    }
-  }
+  $account->voipuser = VoipUserNumber::getNumbersFromUid($account->uid);
 }
 
 /**
