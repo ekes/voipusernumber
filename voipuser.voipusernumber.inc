@@ -39,7 +39,7 @@ class VoipUserNumber extends VoipNumber {
    * @param int $status
    *   VoIP User Number status.
    */
-  function __construct($phone, $uid, $number_prefix, $status) {
+  function __construct($phone, $uid, $number_prefix = '', $status = 0) {
     $this->phone = $phone;
     $this->uid = $uid;
     $this->number_prefix = $number_prefix;
@@ -96,6 +96,8 @@ class VoipUserNumber extends VoipNumber {
    * If you require all VoIP numbers use
    * VoipNumber::getNumbersFromUid().
    *
+   * @todo This gets called a lot? What by? Cache?
+   *
    * @param int $uid
    *   The User ID.
    *
@@ -109,10 +111,10 @@ class VoipUserNumber extends VoipNumber {
 
     $fields = drupal_schema_fields_sql('voipuser_numbers');
     $result = db_query('SELECT ' . implode(',', $fields) . ' FROM {voipuser_numbers} WHERE uid = %d', $uid);
-    while (db_fetch_object($result)) {
-      $numbers[$result->phone] = new VoipUserNumber($result->number, $result->uid, $result->number_prefix, $result->status);
-      if ($result->status & VOIPUSER_NUMBER_DEFAULT) {
-        $numbers['default'] = $numbers[$result->phone];
+    while ($row = db_fetch_object($result)) {
+      $numbers[$row->phone] = new VoipUserNumber($row->phone, $row->uid, $row->number_prefix, $row->status);
+      if ($row->status & VOIPUSER_NUMBER_DEFAULT) {
+        $numbers['default'] = $numbers[$row->phone];
       }
     }
 

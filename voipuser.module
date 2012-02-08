@@ -21,7 +21,20 @@ function voipuser_perm() {
 }
 
 /**
- * Implements of hook_menu().
+ * Implements hook_theme().
+ */
+function voipuser_theme() {
+  return array(
+    'voipuser_settings_page' => array(
+      'arguments' => array('content' => NULL),
+      'file' => 'sms_user.user.inc',
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_menu().
  */
 function voipuser_menu() {
   $items = array();
@@ -45,16 +58,18 @@ function voipuser_menu() {
     'access callback' => 'voipuser_edit_access',
       // @todo and not if set and no multiple.
     'access arguments' => array(1),
+    'tab_parent' => 'user/%/edit/voipnumber',
     'file' => 'voipuser.user.inc',
   );
 
-  $items['user/%user/edit/mobile/%/delete'] = array(
+  $items['user/%user/edit/voipnumber/%/delete'] = array(
     'title' => 'Delete mobile number',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('voipuser_settings_delete_form', 1, 4),
     'type' => MENU_CALLBACK,
     'access callback' => 'voipuser_delete_access',
     'access arguments' => array(1, 4),
+    'tab_parent' => 'user/%/edit/voipnumber',
     'file' => 'voipuser.user.inc',
   );
 
@@ -65,7 +80,7 @@ function voipuser_menu() {
  * Menu access callback.
  */
 function voipuser_edit_access($account) {
-  return (user_edit_access($account) && user_access('Have VoIP user number', $account));
+  return (user_edit_access($account) && user_access('Have VoIP user number'));
 }
 
 /**
@@ -104,11 +119,12 @@ function voipuser_user_load(&$account, $category) {
 /**
  * hook_user() for $op = 'insert' || $op = 'update'.
  *
+ * Note there is a unique constraint on the number in the table, uniqueness
+ * should be checked before adding to the user object.
+ *
  * @todo seperate insert, update; keep common together.
  */
 function voipuser_user_save(&$edit, &$account, $category) {
-  print_r($account);
-
   if (($category == 'voipnumber' || $category == 'account') && $edit['voipnumber']) {
     $numbers = $edit['voipnumber'];
     db_query('DELETE FROM {voipuser_numbers} WHERE uid = %d', $account->uid);
@@ -125,14 +141,12 @@ function voipuser_user_save(&$edit, &$account, $category) {
       drupal_write_record($number);
     }
   }
-
-  print_r($account);
 }
 
 /**
  * hook_user() for $op = 'view'.
  */
-function voipuser_user_view($account) {
+function voipuser_user_view(&$account) {
 }
 
 /**
