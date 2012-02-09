@@ -59,7 +59,7 @@ class VoipUserNumber extends VoipNumber {
    *   User ID. FALSE if none.
    */
   public static function getUidFromNumber($number) {
-    return db_result(db_query("SELECT uid FROM {voipuser_numbers} WHERE phone = '%s'", $number));
+    return db_result(db_query("SELECT uid FROM {voipusernumber_numbers} WHERE phone = '%s'", $number));
    }
 
   /**
@@ -109,11 +109,11 @@ class VoipUserNumber extends VoipNumber {
   public static function getNumbersFromUid($uid) {
     $numbers = array();
 
-    $fields = drupal_schema_fields_sql('voipuser_numbers');
-    $result = db_query('SELECT ' . implode(',', $fields) . ' FROM {voipuser_numbers} WHERE uid = %d', $uid);
+    $fields = drupal_schema_fields_sql('voipusernumber_numbers');
+    $result = db_query('SELECT ' . implode(',', $fields) . ' FROM {voipusernumber_numbers} WHERE uid = %d', $uid);
     while ($row = db_fetch_object($result)) {
       $numbers[$row->phone] = new VoipUserNumber($row->phone, $row->uid, $row->number_prefix, $row->status);
-      if ($row->status & VOIPUSER_NUMBER_DEFAULT) {
+      if ($row->status & VOIPUSERNUMBER_DEFAULT) {
         $numbers['default'] = $numbers[$row->phone];
       }
     }
@@ -152,10 +152,10 @@ class VoipUserNumber extends VoipNumber {
    */
   public function setActive($active) {
     if ($active) {
-      $this->status = $this->status | VOIPUSER_NUMBER_ACTIVE;
+      $this->status = $this->status | VOIPUSERNUMBER_ACTIVE;
     }
     else {
-      $this->status = $this->status ^ VOIPUSER_NUMBER_ACTIVE;
+      $this->status = $this->status ^ VOIPUSERNUMBER_ACTIVE;
     }
   }
 
@@ -167,10 +167,10 @@ class VoipUserNumber extends VoipNumber {
    */
   public function setConfirmed($confirmed = TRUE) {
     if ($confirmed) {
-      $this->status = $this->status | VOIPUSER_NUMBER_CONFIRMED;
+      $this->status = $this->status | VOIPUSERNUMBER_CONFIRMED;
     }
     else {
-      $this->status = $this->status ^ VOIPUSER_NUMBER_CONFIRMED;
+      $this->status = $this->status ^ VOIPUSERNUMBER_CONFIRMED;
     }
   }
 
@@ -185,10 +185,10 @@ class VoipUserNumber extends VoipNumber {
    */
   public function setDefault($default) {
     if ($default) {
-      $this->status = $this->status | VOIPUSER_NUMBER_DEFAULT;
+      $this->status = $this->status | VOIPUSERNUMBER_DEFAULT;
     }
     else {
-      $this->status = $this->status ^ VOIPUSER_NUMBER_DEFAULT;
+      $this->status = $this->status ^ VOIPUSERNUMBER_DEFAULT;
     }
   }
 
@@ -199,7 +199,7 @@ class VoipUserNumber extends VoipNumber {
    *   TRUE if active.
    */
   public function getActive() {
-    return (bool) $this->status & VOIPUSER_NUMBER_ACTIVE;
+    return (bool) $this->status & VOIPUSERNUMBER_ACTIVE;
   }
 
   /**
@@ -209,7 +209,7 @@ class VoipUserNumber extends VoipNumber {
    *   TRUE if confirmed.
    */
   public function getConfirmed() {
-    return (bool) $this->status & VOIPUSER_NUMBER_CONFIRMED;
+    return (bool) $this->status & VOIPUSERNUMBER_CONFIRMED;
   }
 
   /**
@@ -219,6 +219,6 @@ class VoipUserNumber extends VoipNumber {
    *   TRUE if this is a default number.
    */
   public function getDefault() {
-    return (bool) $this->status & VOIPUSER_NUMBER_DEFAULT;
+    return (bool) $this->status & VOIPUSERNUMBER_DEFAULT;
   }
 }

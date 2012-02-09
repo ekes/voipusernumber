@@ -13,19 +13,19 @@
  * @param bool $create
  *   (optional) If number is not known create a new user. Default FALSE.
  */
-function _voipuser_autologin_script($number, $create = FALSE) {
-  $script = new VoipScript('voipuser_autologin');
+function _voipusernumber_autologin_script($number, $create = FALSE) {
+  $script = new VoipScript('voipusernumber_autologin');
   // autoload _should_ negate the need for this
-  module_load_include('inc', 'voipuser', 'voipuser.voipusernumber');
+  module_load_include('inc', 'voipusernumber', 'voipusernumber.voipusernumber');
 
   $uid = VoipUserNumber::getUidFromNumber($number);
   if ($uid) {
     global $user;
-    watchdog('voipuser', 'Voip call associated with user %name.', array('%name' => $user->name));
+    watchdog('voipusernumber', 'Voip call associated with user %name.', array('%name' => $user->name));
     $user = user_load($uid);
   }
   elseif ($create) {
-    $uid = voipuser_user_create($number);
+    $uid = voipusernumber_user_create($number);
     global $user;
     $user = user_load($uid);
   }
@@ -35,8 +35,8 @@ function _voipuser_autologin_script($number, $create = FALSE) {
 /**
  * Log out user.
  */
-function _voipuser_logout_script() {
-  $script = new VoipScript('voipuser_logout');
+function _voipusernumber_logout_script() {
+  $script = new VoipScript('voipusernumber_logout');
   global $user;
   watchdog('user', 'Voip call disassociated with user %name.', array('%name' => $user->name));
   $user = user_load(0);

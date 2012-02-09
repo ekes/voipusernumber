@@ -8,20 +8,20 @@
 /**
  * Menu callback: User number settings page.
  */
-function voipuser_settings_page($account) {
+function voipusernumber_settings_page($account) {
   $content = array();
 
   $content['add'] = l(t('Add number'), 'user/' . $account->uid . '/edit/voipnumber/add');
 
-  $content['numbers'] = drupal_get_form('voipuser_settings_numbers_form', $account);
+  $content['numbers'] = drupal_get_form('voipusernumber_settings_numbers_form', $account);
 
-  return theme('voipuser_settings_page', $content);
+  return theme('voipusernumber_settings_page', $content);
 }
 
 /**
  * Form callback: User phone numbers - set default.
  */
-function voipuser_settings_numbers_form(&$form_state, $account) {
+function voipusernumber_settings_numbers_form(&$form_state, $account) {
   $form = array();
   $form['uid'] = array('#type' => 'value', '#value' => $account->uid);
 
@@ -78,11 +78,11 @@ function voipuser_settings_numbers_form(&$form_state, $account) {
 /**
  * Form constructor for user add number page.
  *
- * @see voipuser_settings_add_form_validate()
- * @see voipuser_settings_add_form_submit()
+ * @see voipusernumber_settings_add_form_validate()
+ * @see voipusernumber_settings_add_form_submit()
  * @ingroup forms
  */
-function voipuser_settings_add_form(&$form_state, $account) {
+function voipusernumber_settings_add_form(&$form_state, $account) {
   $form = array();
   $form['uid'] = array('#type' => 'value', '#value' => $account->uid);
 
@@ -103,11 +103,11 @@ function voipuser_settings_add_form(&$form_state, $account) {
 }
 
 /**
- * Form validation handler for voipuser_settings_add_form().
+ * Form validation handler for voipusernumber_settings_add_form().
  *
- * @see voipuser_settings_add_form_submit().
+ * @see voipusernumber_settings_add_form_submit().
  */
-function voipuser_settings_add_form_validate($form, &$form_state) {
+function voipusernumber_settings_add_form_validate($form, &$form_state) {
   $error = '';
   // Basic VoIPNumber validation.
   _voipnumber_valid_int_phone_number($form_state['values']['number'], $error);
@@ -121,20 +121,20 @@ function voipuser_settings_add_form_validate($form, &$form_state) {
 }
 
 /**
- * Form submission handler for voipuser_settings_add_form().
+ * Form submission handler for voipusernumber_settings_add_form().
  *
- * @see voipuser_settings_add_form_validate().
+ * @see voipusernumber_settings_add_form_validate().
  */
-function voipuser_settings_add_form_submit($form, &$form_state) {
+function voipusernumber_settings_add_form_submit($form, &$form_state) {
   $voipnumber = new VoipUserNumber($form_state['values']['number'], $form_state['values']['uid']);
-  drupal_write_record('voipuser_numbers', $voipnumber);
+  drupal_write_record('voipusernumber_numbers', $voipnumber);
   $account->voipnumber[$voipnumber->getNumber()] = $voipnumber;
 }
 
 /**
  * Form callback: User delet number page.
  */
-function voipuser_settings_delete_form(&$form_state, $account, $number) {
+function voipusernumber_settings_delete_form(&$form_state, $account, $number) {
 }
 
 /**
@@ -145,8 +145,8 @@ function voipuser_settings_delete_form(&$form_state, $account, $number) {
  *
  * @ingroup themeable
  */
-function theme_voipuser_settings_page($content) {
-  $output = '<div class="voipuser-add">' . $content['add'] . '</div>';
+function theme_voipusernumber_settings_page($content) {
+  $output = '<div class="voipusernumber-add">' . $content['add'] . '</div>';
   $output .= $content['numbers'];
   return $output;
 }

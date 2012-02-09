@@ -8,9 +8,9 @@
 /**
  * Implements hook_schema().
  */
-function voipuser_schema() {
+function voipusernumber_schema() {
   $schema = array();
-  $schema['voipuser_numbers'] = array(
+  $schema['voipusernumber_numbers'] = array(
     'fields' => array(
       'uid' => array(
         'type' => 'int',
@@ -41,13 +41,13 @@ function voipuser_schema() {
 /**
  * Implements hook_install().
  */
-function voipuser_install() {
-  drupal_install_schema('voipuser');
+function voipusernumber_install() {
+  drupal_install_schema('voipusernumber');
 }
 
 /**
  * Implements hook_uninstall().
  */
-function voipuser_uninstall() {
-  drupal_uninstall_schema('voipuser');
+function voipusernumber_uninstall() {
+  drupal_uninstall_schema('voipusernumber');
 }

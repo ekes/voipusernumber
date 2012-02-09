@@ -5,14 +5,14 @@
  *   Drupal user and Drupal VoIP module integration.
  */
 
-define('VOIPUSER_NUMBER_CONFIRMED', 0x0001);
-define('VOIPUSER_NUMBER_ACTIVE', 0x0002);
-define('VOIPUSER_NUMBER_DEFAULT', 0x0004);
+define('VOIPUSERNUMBER_CONFIRMED', 0x0001);
+define('VOIPUSERNUMBER_ACTIVE', 0x0002);
+define('VOIPUSERNUMBER_DEFAULT', 0x0004);
 
 /**
  * Implements hook_perm().
  */
-function voipuser_perm() {
+function voipusernumber_perm() {
   return array(
     'Have VoIP user number',
     'Edit own VoIP user number',
@@ -23,9 +23,9 @@ function voipuser_perm() {
 /**
  * Implements hook_theme().
  */
-function voipuser_theme() {
+function voipusernumber_theme() {
   return array(
-    'voipuser_settings_page' => array(
+    'voipusernumber_settings_page' => array(
       'arguments' => array('content' => NULL),
       'file' => 'sms_user.user.inc',
     ),
@@ -36,41 +36,41 @@ function voipuser_theme() {
 /**
  * Implements hook_menu().
  */
-function voipuser_menu() {
+function voipusernumber_menu() {
   $items = array();
 
   $items['user/%user/edit/voipnumber'] = array(
     'title' => 'Phone number',
-    'page callback' => 'voipuser_settings_page',
+    'page callback' => 'voipusernumber_settings_page',
     'page arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
-    'access callback' => 'voipuser_edit_access',
+    'access callback' => 'voipusernumber_edit_access',
     'access arguments' => array(1),
     'tab_parent' => 'user/%/edit',
-    'file' => 'voipuser.user.inc',
+    'file' => 'voipusernumber.user.inc',
   );
 
   $items['user/%user/edit/voipnumber/add'] = array(
     'title' => 'Add number',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('voipuser_settings_add_form', 1),
+    'page arguments' => array('voipusernumber_settings_add_form', 1),
     'type' => MENU_CALLBACK,
-    'access callback' => 'voipuser_edit_access',
+    'access callback' => 'voipusernumber_edit_access',
       // @todo and not if set and no multiple.
     'access arguments' => array(1),
     'tab_parent' => 'user/%/edit/voipnumber',
-    'file' => 'voipuser.user.inc',
+    'file' => 'voipusernumber.user.inc',
   );
 
   $items['user/%user/edit/voipnumber/%/delete'] = array(
     'title' => 'Delete mobile number',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('voipuser_settings_delete_form', 1, 4),
+    'page arguments' => array('voipusernumber_settings_delete_form', 1, 4),
     'type' => MENU_CALLBACK,
-    'access callback' => 'voipuser_delete_access',
+    'access callback' => 'voipusernumber_delete_access',
     'access arguments' => array(1, 4),
     'tab_parent' => 'user/%/edit/voipnumber',
-    'file' => 'voipuser.user.inc',
+    'file' => 'voipusernumber.user.inc',
   );
 
   return $items;
@@ -79,41 +79,41 @@ function voipuser_menu() {
 /**
  * Menu access callback.
  */
-function voipuser_edit_access($account) {
+function voipusernumber_edit_access($account) {
   return (user_edit_access($account) && user_access('Have VoIP user number'));
 }
 
 /**
  * Implements hook_user().
  */
-function voipuser_user($op, &$edit, &$account, $category = NULL) {
+function voipusernumber_user($op, &$edit, &$account, $category = NULL) {
   switch ($op) {
     case 'load':
-      return voipuser_user_load($account, $category);
+      return voipusernumber_user_load($account, $category);
     case 'insert':
     case 'update':
-      return voipuser_user_save($edit, $account, $category);
+      return voipusernumber_user_save($edit, $account, $category);
     case 'view':
-      return voipuser_user_view($account);
+      return voipusernumber_user_view($account);
     case 'register':
-      return voipuser_user_register();
+      return voipusernumber_user_register();
     case 'delete':
-      return voipuser_user_delete($account->uid);
+      return voipusernumber_user_delete($account->uid);
     case 'validate':
       return;
     case 'login':
       return;
     case 'categories':
-      return voipuser_user_categories();
+      return voipusernumber_user_categories();
   }
 }
 
 /**
  * hook_user() for $op = 'load'.
  */
-function voipuser_user_load(&$account, $category) {
-  $account->voipuser = array();
-  $account->voipuser = VoipUserNumber::getNumbersFromUid($account->uid);
+function voipusernumber_user_load(&$account, $category) {
+  $account->voipusernumber = array();
+  $account->voipusernumber = VoipUserNumber::getNumbersFromUid($account->uid);
 }
 
 /**
@@ -124,19 +124,19 @@ function voipuser_user_load(&$account, $category) {
  *
  * @todo seperate insert, update; keep common together.
  */
-function voipuser_user_save(&$edit, &$account, $category) {
+function voipusernumber_user_save(&$edit, &$account, $category) {
   if (($category == 'voipnumber' || $category == 'account') && $edit['voipnumber']) {
     $numbers = $edit['voipnumber'];
-    db_query('DELETE FROM {voipuser_numbers} WHERE uid = %d', $account->uid);
+    db_query('DELETE FROM {voipusernumber_numbers} WHERE uid = %d', $account->uid);
     foreach ($numbers as $number) {
       $voipnumber = new VoipUserNumber($number['number'], $account->uid, $number['number_prefix'], $number['status']);
-      drupal_write_record('voipuser_numbers', $voipnumber);
+      drupal_write_record('voipusernumber_numbers', $voipnumber);
       $account->voipnumber[$voipnumber->getNumber()] = $voipnumber;
     }
     $edit['voipnumber'] = NULL;
   }
   else {
-    db_query('DELETE FROM {voipuser_numbers} WHERE uid = %d', $account->uid);
+    db_query('DELETE FROM {voipusernumber_numbers} WHERE uid = %d', $account->uid);
     foreach ((array) $account->voipnumber as $number) {
       drupal_write_record($number);
     }
@@ -146,28 +146,28 @@ function voipuser_user_save(&$edit, &$account, $category) {
 /**
  * hook_user() for $op = 'view'.
  */
-function voipuser_user_view(&$account) {
+function voipusernumber_user_view(&$account) {
 }
 
 /**
  * hook_user() for $op = 'register'.
  */
-function voipuser_user_register() {
+function voipusernumber_user_register() {
 }
 
 /**
  * hook_user() for $op = 'delete'.
  */
-function voipuser_user_delete($uid) {
-  db_query('DELETE FROM {voipuser_numbers} WHERE uid = %d', $uid);
+function voipusernumber_user_delete($uid) {
+  db_query('DELETE FROM {voipusernumber_numbers} WHERE uid = %d', $uid);
 }
 
 /**
  * hook_user() for $op = profile.
  */
-function voipuser_user_categories() {
+function voipusernumber_user_categories() {
   return array(
-    'voipuser' => array(
+    'voipusernumber' => array(
       'name' => 'voipnumber',
       'title' => t('Phone number'),
       'weight' => 10,
@@ -187,7 +187,7 @@ function voipuser_user_categories() {
  * @param array $options
  *   (optional) Keyed array of additional user options.
  *   'pass' => Drupal user password,
- *   'number_status' => VOIPUSER_NUMBER_status,
+ *   'number_status' => VOIPUSERNUMBER_status,
  *   'number_prefix' => VoipNumber type or prexix,
  *   'user_status' => Drupal user status,
  *   'mail' => e-mail address,
@@ -197,7 +197,7 @@ function voipuser_user_categories() {
  * @return int
  *   User ID.
  */
-function voipuser_user_create($number, $options = array()) {
+function voipusernumber_user_create($number, $options = array()) {
   $defaults = array(
     'pass' => user_password(8),
     'number_status' => 0,
@@ -205,16 +205,16 @@ function voipuser_user_create($number, $options = array()) {
     'user_status' => 1,
     // @todo more unique, non example.com dud e-mail.
     'mail' => $number . '@example.com',
-    'roles' => ($role = variable_get('voipuser_registration_role', NULL)) ? array($role => 1) : NULL,
+    'roles' => ($role = variable_get('voipusernumber_registration_role', NULL)) ? array($role => 1) : NULL,
      // @todo set language to site default?
     'language' => '',
   );
   $options += $defaults;
 
   while (! $uid) {
-    $voipnumber = new VoipUserNumber($number, NULL, $number_prefix, $phone_status);
+    $voipnumber = new voipusernumberNumber($number, NULL, $number_prefix, $phone_status);
     $account = user_save(NULL, array(
-      'name' => variable_get('voipuser_registration_username', 'Drupal-') . mt_rand(1, db_result(db_query('SELECT MAX(uid) FROM {users}')) * 10),
+      'name' => variable_get('voipusernumber_registration_username', 'Drupal-') . mt_rand(1, db_result(db_query('SELECT MAX(uid) FROM {users}')) * 10),
       'pass' => $options['pass'],
       'mail' => $options['mail'],
       'roles' => $options['roles'],
@@ -239,37 +239,39 @@ function voipuser_user_create($number, $options = array()) {
 /**
  * Implements hook_voipscript_get_script_names().
  */
-function voipuser_voipscript_get_script_names() {
+function voipusernumber_voipscript_get_script_names() {
   return array(
-    'voipuser_autologin',
-    'voipuser_logout',
+    'voipusernumber_autologin',
+    'voipusernumber_logout',
   );
 }
 
 /**
  * Implements hook_voipscript_load_script().
  */
-function voipuser_voipscript_load_script($script_name, $params = NULL) {
+function voipusernumber_voipscript_load_script($script_name, $params = NULL) {
   switch ($script_name) {
-    case 'voipuser_autologin':
-    watchdog('DEBUG', 'voipuser_autologin');
-      module_load_include('inc', 'voipuser', 'voipuser.script');
+    case 'voipusernumber_autologin':
+    watchdog('DEBUG', 'voipusernumber_autologin');
+      module_load_include('inc', 'voipusernumber', 'voipusernumber.script');
       if (isset($params['create'])) {
-        return _voipuser_autologin_script($params['number'], $params['create']);
+        return _voipusernumber_autologin_script($params['number'], $params['create']);
       }
       else {
-        return _voipuser_autologin_script($params['number']);
+        return _voipusernumber_autologin_script($params['number']);
       }
-    case 'voipuser_logout':
-      module_load_include('inc', 'voipuser', 'voipuser.script');
-      return _voipuser_logout_script();
+    case 'voipusernumber_logout':
+      module_load_include('inc', 'voipusernumber', 'voipusernumber.script');
+      return _voipusernumber_logout_script();
   }
 }
 
 /**
  * Implements hook_get_voip_numbers().
+ *
+ * @todo ...
  */
-function voipuser_get_voip_numbers($id, $type) {
+function voipusernumber_get_voip_numbers($id, $type) {
   $numbers = array();
   switch ($type) {
     case 'user':

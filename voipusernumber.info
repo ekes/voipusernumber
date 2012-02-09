@@ -1,9 +1,9 @@
 ; $Id$
-name = VoIP User
+name = VoIP User Number
 description = User login and number for VoIP Drupal
 dependencies[] = voip
 dependencies[] = voipnumber
 dependencies[] = autoload
-files[] = voipuser.voipusernumber.inc
+files[] = voipusernumber.voipnumber.inc
 package = VoIP Drupal
 core = 6.x
