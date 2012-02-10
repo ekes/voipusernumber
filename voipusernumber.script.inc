@@ -21,6 +21,15 @@
  * global available. The scrip variables %user_uid and %user_name values within
  * the calling script script.
  *
+ * Example:
+ *   $script->addGosub(
+ *     'voipusernumber_autologin',
+ *     array(
+ *       'number' => '%caller_number',
+ *       'create' => TRUE,
+ *     )
+ *   );
+ *
  * @param string $number
  *   Phone number. For example from the script %caller_number variable.
  * @param bool $create
