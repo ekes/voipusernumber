@@ -212,7 +212,7 @@ function voipusernumber_user_create($number, $options = array()) {
   $options += $defaults;
 
   while (! $uid) {
-    $voipnumber = new voipusernumberNumber($number, NULL, $number_prefix, $phone_status);
+    $voipnumber = new VoipUserNumber($number, NULL, $number_prefix, $phone_status);
     $account = user_save(NULL, array(
       'name' => variable_get('voipusernumber_registration_username', 'Drupal-') . mt_rand(1, db_result(db_query('SELECT MAX(uid) FROM {users}')) * 10),
       'pass' => $options['pass'],
