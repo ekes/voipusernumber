@@ -132,9 +132,35 @@ function voipusernumber_settings_add_form_submit($form, &$form_state) {
 }
 
 /**
- * Form callback: User delet number page.
+ * Form callback: User delete number page.
+ *
+ * @ingroup forms
+ * @see voipusernumber_settings_delete_form_submit().
  */
 function voipusernumber_settings_delete_form(&$form_state, $account, $number) {
+  $form = array();
+  $form['uid'] = array('#type' => 'value', '#value' => $account->uid);
+  $form['number'] = array('#type' => 'value', '#value' => $number);
+
+  return confirm_form(
+    $form,
+    t('Are you sure you want to delete phone number %number?', array('%number' => $number)),
+    isset($_GET['destination']) ? $_GET['destination'] : 'user/' . $account->uid . '/edit/voipnumber',
+    NULL,
+    t('Delete'),
+    t('Cancel')
+  );
+}
+
+/**
+ * Form submission handler for
+ * voipusernumber_settings_delete_form().
+ */
+function voipusernumber_settings_delete_form_submit($form, &$form_state) {
+  if ($form_state['clicked_button']['#value'] == t('Delete')) {
+    voipusernumber_delete_number($form_state['values']['uid'], $form_state['values']['number']);
+  }
+  drupal_goto();
 }
 
 /**

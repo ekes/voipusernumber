@@ -67,8 +67,8 @@ function voipusernumber_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('voipusernumber_settings_delete_form', 1, 4),
     'type' => MENU_CALLBACK,
-    'access callback' => 'voipusernumber_delete_access',
-    'access arguments' => array(1, 4),
+    'access callback' => 'voipusernumber_edit_access',
+    'access arguments' => array(1),
     'tab_parent' => 'user/%/edit/voipnumber',
     'file' => 'voipusernumber.user.inc',
   );
@@ -156,10 +156,24 @@ function voipusernumber_user_register() {
 }
 
 /**
- * hook_user() for $op = 'delete'.
+ * Delete all numbers for a user.
+ *
+ * Called as hook_user() for $op = 'delete'. Could be seperated. Naming?
  */
 function voipusernumber_user_delete($uid) {
   db_query('DELETE FROM {voipusernumber_numbers} WHERE uid = %d', $uid);
+}
+
+/**
+ * Delete individual number for user.
+ *
+ * @param int $uid
+ *   User ID.
+ * @param string $number
+ *   Number to delete.
+ */
+function voipusernumber_delete_number($uid, $number) {
+  db_query("DELETE FROM {voipusernumber_numbers} WHERE uid = %d AND phone = '%s'", $uid, $number);
 }
 
 /**
