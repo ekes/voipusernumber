@@ -43,12 +43,13 @@ function _voipusernumber_autologin_script($number, $create = FALSE) {
 
   $uid = VoipUserNumber::getUidFromNumber($number);
   if ($uid) {
-    watchdog('voipusernumber', 'Voip call associated with user %name.', array('%name' => $user->name));
     $user = user_load($uid);
+    watchdog('voipusernumber', 'Voip call associated with user %name.', array('%name' => $user->name));
   }
   elseif ($create) {
     $uid = voipusernumber_user_create($number);
     $user = user_load($uid);
+    watchdog('voipusernumber', 'Voip call account created and associated with user %name.', array('%name' => $user->name));
   }
   else {
     $user = user_load(0);
