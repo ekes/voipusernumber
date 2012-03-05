@@ -51,3 +51,10 @@ function voipusernumber_install() {
 function voipusernumber_uninstall() {
   drupal_uninstall_schema('voipusernumber');
 }
+
+/**
+ * Implements hook_enable().
+ */
+function voipusernumber_enable() {
+  module_invoke('autoload', 'flush_caches');
+}
